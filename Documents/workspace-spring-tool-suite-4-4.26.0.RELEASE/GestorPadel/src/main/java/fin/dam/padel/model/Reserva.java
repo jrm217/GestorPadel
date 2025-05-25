@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "reservas")
+@Table(name = "reserva")
 public class Reserva {
 
     @Id
@@ -16,14 +16,17 @@ public class Reserva {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    private String pista;
-    private LocalDate fecha; // Agregar campo de fecha
+    @ManyToOne
+    @JoinColumn(name = "pista_id", nullable = false)
+    private Pista pista;
+
+    private LocalDate fecha;
     private LocalTime horaInicio;
     private LocalTime horaFin;
 
     public Reserva() {}
 
-    public Reserva(Usuario usuario, String pista, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
+    public Reserva(Usuario usuario, Pista pista, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin) {
         this.usuario = usuario;
         this.pista = pista;
         this.fecha = fecha;
@@ -33,7 +36,7 @@ public class Reserva {
 
     public Long getId() { return id; }
     public Usuario getUsuario() { return usuario; }
-    public String getPista() { return pista; }
+    public Pista getPista() { return pista; }
     public LocalDate getFecha() { return fecha; }
     public LocalTime getHoraInicio() { return horaInicio; }
     public LocalTime getHoraFin() { return horaFin; }

@@ -1,7 +1,11 @@
+// src/main/java/fin/dam/padel/controller/ReservaController.java
+
 package fin.dam.padel.controller;
 
+import fin.dam.padel.model.Pista;
 import fin.dam.padel.model.Reserva;
 import fin.dam.padel.model.Usuario;
+import fin.dam.padel.repository.PistaRepository;
 import fin.dam.padel.repository.ReservaRepository;
 import fin.dam.padel.repository.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +25,12 @@ public class ReservaController {
 
     private final ReservaRepository reservaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final PistaRepository pistaRepository;
 
-    public ReservaController(ReservaRepository reservaRepository, UsuarioRepository usuarioRepository) {
+    public ReservaController(ReservaRepository reservaRepository, UsuarioRepository usuarioRepository, PistaRepository pistaRepository) {
         this.reservaRepository = reservaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.pistaRepository = pistaRepository;
     }
 
     @GetMapping
@@ -39,12 +45,17 @@ public class ReservaController {
         }
 
         Long usuarioId = Long.parseLong(datos.get("usuarioId").toString());
-        String pista = datos.get("pista").toString();
+        String pistaNombre = datos.get("pista").toString();
         String fechaHora = datos.get("fechaHora").toString();
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(usuarioId);
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Usuario no encontrado.");
+        }
+
+        Optional<Pista> pistaOpt = pistaRepository.findByNombre(pistaNombre);
+        if (pistaOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Pista no encontrada.");
         }
 
         LocalDateTime fechaYHora;
@@ -63,18 +74,16 @@ public class ReservaController {
             return ResponseEntity.badRequest().body("Ya tienes una reserva en este horario.");
         }
 
-        Optional<Reserva> reservaExistente = reservaRepository.findByPistaAndHorario(pista, inicio, fin);
+        Optional<Reserva> reservaExistente = reservaRepository.findByPistaAndHorario(pistaOpt.get(), inicio, fin);
         if (reservaExistente.isPresent()) {
             return ResponseEntity.badRequest().body("Pista ya reservada en este horario");
         }
 
-        Reserva nuevaReserva = new Reserva(usuarioOpt.get(), pista, fecha, inicio, fin);
+        Reserva nuevaReserva = new Reserva(usuarioOpt.get(), pistaOpt.get(), fecha, inicio, fin);
         reservaRepository.save(nuevaReserva);
 
-        System.out.println("✔️ Reserva creada: " +
-                "Usuario " + usuarioOpt.get().getNombre() +
-                " | Día " + fecha +
-                " | Horario " + inicio + " - " + fin);
+        System.out.println("✔️ Reserva creada: Usuario " + usuarioOpt.get().getNombre() +
+                " | Día " + fecha + " | Horario " + inicio + " - " + fin);
 
         return ResponseEntity.ok(nuevaReserva);
     }
@@ -92,13 +101,11 @@ public class ReservaController {
 
     @GetMapping("/admin")
     public ResponseEntity<List<Reserva>> obtenerTodasLasReservas() {
-        List<Reserva> reservas = reservaRepository.findAll();
-        return ResponseEntity.ok(reservas);
+        return ResponseEntity.ok(reservaRepository.findAll());
     }
 
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<Reserva>> obtenerReservasPorUsuario(@PathVariable Long usuarioId) {
-        List<Reserva> reservas = reservaRepository.findByUsuarioId(usuarioId);
-        return ResponseEntity.ok(reservas);
+        return ResponseEntity.ok(reservaRepository.findByUsuarioId(usuarioId));
     }
 }

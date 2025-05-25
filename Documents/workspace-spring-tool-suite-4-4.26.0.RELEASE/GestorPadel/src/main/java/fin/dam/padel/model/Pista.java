@@ -1,15 +1,21 @@
 package fin.dam.padel.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
+@Table(name = "pista")
 public class Pista {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombre;
     private boolean disponible;
+
+    @OneToMany(mappedBy = "pista", cascade = CascadeType.ALL)
+    private List<Reserva> reservas;
 
     // Getters y Setters
     public Long getId() {

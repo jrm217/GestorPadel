@@ -1,29 +1,27 @@
 package fin.dam.padel.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "usuarios", uniqueConstraints = { @UniqueConstraint(columnNames = "email") }) // Evita emails duplicados
+@Table(name = "usuario", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class Usuario {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(nullable = false)
-    private String nombre;
 
-    @Column(nullable = false)
+    private String nombre;
     private String apellidos;
 
-    @Column(nullable = false, unique = true) // Hace que el email sea único
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
+    private String rol;
 
-    @Column(nullable = false)
-    private String rol; // Puede ser "ADMIN" o "USER"
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Reserva> reservas;
 
     public Usuario() {}
 
