@@ -3,20 +3,27 @@ package fin.dam.padel.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import org.springframework.context.annotation.Configuration;
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
-@Configuration
+@Component
 public class FirebaseInitializer {
 
     @PostConstruct
     public void initialize() {
         try {
-            FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/firebase-service-account.json");
+            String firebaseConfig = System.getenv("FIREBASE_CREDENTIALS_JSON");
+            if (firebaseConfig == null || firebaseConfig.isEmpty()) {
+                throw new RuntimeException("FIREBASE_CREDENTIALS_JSON environment variable not set");
+            }
+
+            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(
+                    firebaseConfig.getBytes(StandardCharsets.UTF_8)
+            );
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -25,6 +32,7 @@ public class FirebaseInitializer {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
