@@ -13,31 +13,34 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class FirebaseInitializer {
 
-    @PostConstruct
-    public void initialize() {
-        try {
-            String firebaseConfig = System.getenv("FIREBASE_CREDENTIALS_JSON");
-            if (firebaseConfig == null || firebaseConfig.isEmpty()) {
-                throw new RuntimeException("FIREBASE_CREDENTIALS_JSON environment variable not set");
-            }
+	@PostConstruct
+	public void initialize() {
+	    try {
+	        String firebaseConfig = System.getenv("FIREBASE_CREDENTIALS_JSON");
 
-            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(
-                    firebaseConfig.getBytes(StandardCharsets.UTF_8)
-            );
+	        if (firebaseConfig == null || firebaseConfig.isEmpty()) {
+	            System.out.println("⚠️ FIREBASE_CREDENTIALS_JSON is NOT set or is empty");
+	            throw new RuntimeException("FIREBASE_CREDENTIALS_JSON environment variable not set");
+	        }
 
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
+	        System.out.println("✅ FIREBASE_CREDENTIALS_JSON loaded successfully. Length: " + firebaseConfig.length());
 
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-            }
+	        ByteArrayInputStream serviceAccount = new ByteArrayInputStream(
+	                firebaseConfig.getBytes(StandardCharsets.UTF_8)
+	        );
 
-        } catch (IOException e) {
-            System.err.println(">>> ERROR AL INICIALIZAR FIREBASE: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("No se pudo inicializar Firebase", e); // añade esto
-        }
+	        FirebaseOptions options = FirebaseOptions.builder()
+	                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+	                .build();
 
-    }
+	        if (FirebaseApp.getApps().isEmpty()) {
+	            FirebaseApp.initializeApp(options);
+	            System.out.println("✅ FirebaseApp initialized");
+	        }
+
+	    } catch (IOException e) {
+	        System.out.println("🔥 Error initializing Firebase: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+	}
 }
