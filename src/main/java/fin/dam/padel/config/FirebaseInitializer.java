@@ -34,7 +34,10 @@ public class FirebaseInitializer {
             }
 
         } catch (IOException e) {
+            System.err.println(">>> ERROR AL INICIALIZAR FIREBASE: " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("No se pudo inicializar Firebase", e); // añade esto
         }
+
     }
 }
