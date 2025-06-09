@@ -78,7 +78,6 @@
       	<dependency>
     		<groupId>com.mysql</groupId>
     		<artifactId>mysql-connector-j</artifactId>
-    		<version>8.3.0</version> <!-- o la que prefieras -->
 		</dependency>
 
 		
@@ -87,13 +86,6 @@
   			<artifactId>firebase-admin</artifactId>
   			<version>9.2.0</version>
 		</dependency>
-
-
-		<dependency>
-  			<groupId>org.springframework.boot</groupId>
-  			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-
 	
 	</dependencies>
 
